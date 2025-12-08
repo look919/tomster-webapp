@@ -1,0 +1,56 @@
+import { useEffect, useState } from 'react'
+import { useSearch } from '@tanstack/react-router'
+import z from 'zod'
+import { useRandomSong } from './useRandomSong'
+
+export const searchSchema = z.object({
+  category: z.string().optional(),
+  difficulty: z.string().optional(),
+})
+
+type SearchSchema = z.infer<typeof searchSchema>
+
+export const useGameLogic = () => {
+  const searchParams = useSearch({ from: '/' })
+  const category = (searchParams as SearchSchema).category || 'ALL'
+  const difficulty = (searchParams as SearchSchema).difficulty || 'EASY'
+
+  const { handleNextSong, handleRetry, randomSongQuery } = useRandomSong(
+    category,
+    difficulty,
+  )
+
+  const [isSongRevealed, setIsSongRevealed] = useState(false)
+
+  useEffect(() => {
+    // Reset song revealed state when a new song is loaded
+    setIsSongRevealed(false)
+  }, [randomSongQuery.data])
+
+  const handleReportAndSkip = async () => {
+    if (!randomSongQuery.data) return
+
+    try {
+      await fetch(
+        `http://localhost:5000/api/game/songs/${randomSongQuery.data.id}/report`,
+        {
+          method: 'POST',
+        },
+      )
+    } catch (error) {
+      console.error('Failed to report song:', error)
+    }
+
+    handleNextSong()
+  }
+
+  return {
+    category,
+    difficulty,
+    randomSongQuery,
+    isSongRevealed,
+    setIsSongRevealed,
+    handleRetry,
+    handleReportAndSkip,
+  }
+}
