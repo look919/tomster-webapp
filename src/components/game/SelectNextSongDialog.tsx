@@ -70,6 +70,8 @@ export const SelectNextSongDialog = (props: SelectNextSongDialogProps) => {
     navigate({
       to: '/',
       search: { category: selectedCategory, difficulty: selectedDifficulty },
+      reloadDocument:
+        category === selectedCategory && difficulty === selectedDifficulty,
     })
     setIsDialogOpen(false)
   }
@@ -77,7 +79,9 @@ export const SelectNextSongDialog = (props: SelectNextSongDialogProps) => {
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger asChild>
-        <Button variant="default">Next song!</Button>
+        <Button variant="default" className="mt-4">
+          Next song!
+        </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md max-w-[90vw] ">
         <DialogHeader>

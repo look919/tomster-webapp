@@ -1,21 +1,12 @@
 import YouTube from 'react-youtube'
-import {
-  AlertCircle,
-  Eye,
-  Loader2,
-  Play,
-  RefreshCw,
-  Square,
-} from 'lucide-react'
-
-import z from 'zod'
-import { useSongPlayer } from '../../hooks/useSongPlayer'
-import { Button } from '../ui/button'
+import { AlertCircle, Loader2, Play, RefreshCw, Square } from 'lucide-react'
 
 import { SelectNextSongDialog } from './SelectNextSongDialog'
 import { CategoryAndDifficulty } from './CategoryAndDifficulty'
 import { GameLoading } from './GameLoading'
+import { RevealSong } from './RevealSong'
 import { useGameLogic } from '@/hooks/useGameLogic'
+import { useSongPlayer } from '@/hooks/useSongPlayer'
 
 export const Game = () => {
   const {
@@ -99,37 +90,15 @@ export const Game = () => {
 
         {hasPlayed && (
           <div className="flex flex-col items-center gap-3 mt-2">
-            {!isSongRevealed ? (
-              <>
-                <Button
-                  onClick={handleReportAndSkip}
-                  variant="link"
-                  className="text-red-300 text-sm -mt-6 mb-4"
-                >
-                  Song doesn't work? Report and get new from the same category
-                </Button>
-                <Button
-                  onClick={() => setIsSongRevealed(true)}
-                  variant="default"
-                  className="gap-2 text-purple-300"
-                >
-                  <Eye className="w-4 h-4" />
-                  Reveal Song
-                </Button>
-              </>
-            ) : (
-              <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-4 text-center">
-                <h3 className="text-xl font-bold text-white mb-2">
-                  {randomSongQuery.data.title}
-                </h3>
-                <p className="text-purple-200 mb-1">
-                  {randomSongQuery.data.artists.join(', ')}
-                </p>
-                <p className="text-purple-300 text-sm">
-                  {randomSongQuery.data.releaseYear}
-                </p>
-              </div>
-            )}
+            <RevealSong
+              songTitle={randomSongQuery.data.title}
+              songArtists={randomSongQuery.data.artists}
+              releaseYear={randomSongQuery.data.releaseYear}
+              youtubeId={randomSongQuery.data.youtubeId}
+              isSongRevealed={isSongRevealed}
+              setIsSongRevealed={setIsSongRevealed}
+              handleReportAndSkip={handleReportAndSkip}
+            />
 
             {isSongRevealed ? (
               <SelectNextSongDialog
