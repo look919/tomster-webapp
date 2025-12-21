@@ -1,5 +1,4 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useLocalStorage } from 'usehooks-ts'
 
 interface Song {
   id: string
@@ -12,25 +11,11 @@ interface Song {
 }
 
 interface FetchSongParams {
-  category?: string
-  difficulty?: string
-  excludeSongIds?: Array<string>
+  variant: string
 }
 
-async function fetchRandomSong({
-  category = 'ALL',
-  difficulty = 'EASY',
-  excludeSongIds = [],
-}: FetchSongParams): Promise<Song> {
-  const params = new URLSearchParams()
-  if (excludeSongIds.length > 0) {
-    excludeSongIds.forEach((id) => params.append('excludeSongIds[]', id))
-  }
-
-  const url = `http://localhost:5000/api/game/play/${category}/${difficulty}${
-    params.toString() ? `?${params.toString()}` : ''
-  }`
-
+async function fetchRandomSong({ variant }: FetchSongParams): Promise<Song> {
+  const url = `http://localhost:5000/api/game/play/${variant}`
   const response = await fetch(url)
 
   if (!response.ok) {
@@ -40,20 +25,12 @@ async function fetchRandomSong({
   return response.json()
 }
 
-export function useRandomSong(
-  category: string = 'ALL',
-  difficulty: string = 'HARD',
-) {
+export function useRandomSong(variant: string) {
   const queryClient = useQueryClient()
-  const [playedSongIds, setPlayedSongIds] = useLocalStorage<Array<string>>(
-    'playedSongIds',
-    [],
-  )
 
   const randomSongQuery = useQuery<Song, Error>({
-    queryKey: ['song', category, difficulty, playedSongIds],
-    queryFn: () =>
-      fetchRandomSong({ category, difficulty, excludeSongIds: playedSongIds }),
+    queryKey: ['song', variant],
+    queryFn: () => fetchRandomSong({ variant }),
     staleTime: Infinity,
     retry: false,
   })
@@ -61,29 +38,13 @@ export function useRandomSong(
   const nextSongMutation = useMutation<Song, Error, FetchSongParams>({
     mutationFn: fetchRandomSong,
     onSuccess: (newSong) => {
-      const updatedIds = randomSongQuery.data
-        ? [...playedSongIds, randomSongQuery.data.id]
-        : playedSongIds
-
-      queryClient.setQueryData(
-        ['song', category, difficulty, updatedIds],
-        newSong,
-      )
+      queryClient.setQueryData(['song', variant], newSong)
     },
   })
 
   const handleNextSong = () => {
-    let updatedPlayedSongIds = playedSongIds
-
-    if (randomSongQuery.data) {
-      updatedPlayedSongIds = [...playedSongIds, randomSongQuery.data.id]
-      setPlayedSongIds(updatedPlayedSongIds)
-    }
-
     nextSongMutation.mutate({
-      category,
-      difficulty,
-      excludeSongIds: updatedPlayedSongIds,
+      variant,
     })
   }
 

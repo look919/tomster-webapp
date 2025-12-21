@@ -1,25 +1,36 @@
 import YouTube from 'react-youtube'
 import { AlertCircle, Loader2, Play, RefreshCw, Square } from 'lucide-react'
+import { useState } from 'react'
 
-import { SelectNextSongDialog } from './SelectNextSongDialog'
-import { CategoryAndDifficulty } from './CategoryAndDifficulty'
+import { Button } from '../ui/button'
+import { SelectNextSongForm } from './SelectNextSongForm'
+import { VariantDisplay } from './VariantDisplay'
 import { GameLoading } from './GameLoading'
 import { RevealSong } from './RevealSong'
+import { VolumeChanger } from './VolumeChanger'
 import { useGameLogic } from '@/hooks/useGameLogic'
 import { useSongPlayer } from '@/hooks/useSongPlayer'
 
 export const Game = () => {
   const {
-    category,
-    difficulty,
+    variant,
     randomSongQuery,
     isSongRevealed,
     setIsSongRevealed,
     handleRetry,
     handleReportAndSkip,
   } = useGameLogic()
-  const { playing, ready, hasPlayed, handlePlay, handleStop, onReady } =
-    useSongPlayer(randomSongQuery.data)
+  const {
+    playing,
+    ready,
+    hasPlayed,
+    volume,
+    handlePlay,
+    handleStop,
+    handleVolumeChange,
+    onReady,
+  } = useSongPlayer(randomSongQuery.data)
+  const [isSelectingNextSong, setIsSelectingNextSong] = useState(false)
 
   if (randomSongQuery.error) {
     return (
@@ -41,7 +52,7 @@ export const Game = () => {
   }
 
   if (randomSongQuery.isPending) {
-    return <GameLoading category={category} difficulty={difficulty} />
+    return <GameLoading variant={variant} />
   }
 
   console.log('Random Song:', randomSongQuery.data)
@@ -64,28 +75,38 @@ export const Game = () => {
         />
       </div>
 
-      <div className="flex flex-col items-center gap-6">
-        <CategoryAndDifficulty category={category} difficulty={difficulty} />
-        <div className="flex items-center gap-4">
+      {/* Player View */}
+      <div
+        className={`flex flex-col items-center gap-6 ${
+          isSelectingNextSong ? 'hidden' : 'block'
+        }`}
+      >
+        <VariantDisplay variant={variant} />
+        <div className="flex flex-col items-center gap-4">
           <button
             onClick={!playing ? handlePlay : handleStop}
             disabled={!ready}
-            className={`w-32 h-32 rounded-full flex items-center justify-center 
-                    transition-all transform hover:scale-105 active:scale-95 
+            className="flex flex-col items-center gap-2 group"
+          >
+            <div
+              className={`w-32 h-32 rounded-full flex items-center justify-center 
+                    transition-all transform group-hover:scale-105 group-active:scale-95 
                     ${
                       !ready
                         ? 'bg-purple-600 cursor-not-allowed opacity-50'
-                        : 'bg-purple-500 hover:bg-purple-600 shadow-lg shadow-purple-500/50'
+                        : 'bg-purple-500 group-hover:bg-purple-600 shadow-lg shadow-purple-500/50'
                     }`}
-          >
-            {!ready ? (
-              <Loader2 className="w-16 h-16 text-white animate-spin" />
-            ) : playing ? (
-              <Square className="w-16 h-16 text-white" fill="white" />
-            ) : (
-              <Play className="w-16 h-16 text-white ml-2" fill="white" />
-            )}
+            >
+              {!ready ? (
+                <Loader2 className="w-16 h-16 text-white animate-spin" />
+              ) : playing ? (
+                <Square className="w-16 h-16 text-white" fill="white" />
+              ) : (
+                <Play className="w-16 h-16 text-white ml-2" fill="white" />
+              )}
+            </div>
           </button>
+          <VolumeChanger volume={volume} onVolumeChange={handleVolumeChange} />
         </div>
 
         {hasPlayed && (
@@ -100,15 +121,28 @@ export const Game = () => {
               handleReportAndSkip={handleReportAndSkip}
             />
 
-            {isSongRevealed ? (
-              <SelectNextSongDialog
-                category={category}
-                difficulty={difficulty}
-              />
-            ) : null}
+            {isSongRevealed && (
+              <Button
+                variant="default"
+                className="mt-4"
+                onClick={() => {
+                  handleStop()
+                  setIsSelectingNextSong(true)
+                }}
+              >
+                Next song!
+              </Button>
+            )}
           </div>
         )}
       </div>
+
+      {/* Song Selection View */}
+      <SelectNextSongForm
+        variant={variant}
+        isVisible={isSelectingNextSong}
+        onClose={() => setIsSelectingNextSong(false)}
+      />
     </>
   )
 }

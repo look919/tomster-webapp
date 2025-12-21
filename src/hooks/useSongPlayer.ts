@@ -15,12 +15,21 @@ export function useSongPlayer(song: Song | undefined) {
   const [playing, setPlaying] = useState(false)
   const [ready, setReady] = useState(false)
   const [hasPlayed, setHasPlayed] = useState(false)
+  const [volume, setVolume] = useState(50)
   const playerRef = useRef<YouTubePlayer | null>(null)
   const timerRef = useRef<NodeJS.Timeout | null>(null)
 
   const onReady = (event: { target: YouTubePlayer }) => {
     playerRef.current = event.target
+    playerRef.current.setVolume(volume)
     setReady(true)
+  }
+
+  const handleVolumeChange = (newVolume: number) => {
+    setVolume(newVolume)
+    if (playerRef.current) {
+      playerRef.current.setVolume(newVolume)
+    }
   }
 
   const handlePlay = () => {
@@ -87,8 +96,10 @@ export function useSongPlayer(song: Song | undefined) {
     playing,
     ready,
     hasPlayed,
+    volume,
     handlePlay,
     handleStop,
+    handleVolumeChange,
     onReady,
   }
 }

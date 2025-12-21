@@ -4,21 +4,18 @@ import z from 'zod'
 import { useRandomSong } from './useRandomSong'
 
 export const searchSchema = z.object({
-  category: z.string().optional(),
-  difficulty: z.string().optional(),
+  variant: z.string().optional(),
 })
 
 type SearchSchema = z.infer<typeof searchSchema>
 
 export const useGameLogic = () => {
   const searchParams = useSearch({ from: '/' })
-  const category = (searchParams as SearchSchema).category || 'ALL'
-  const difficulty = (searchParams as SearchSchema).difficulty || 'EASY'
+  const variant =
+    (searchParams as SearchSchema).variant || 'RANDOM-RANDOM-RANDOM-RANDOM'
 
-  const { handleNextSong, handleRetry, randomSongQuery } = useRandomSong(
-    category,
-    difficulty,
-  )
+  const { handleNextSong, handleRetry, randomSongQuery } =
+    useRandomSong(variant)
 
   const [isSongRevealed, setIsSongRevealed] = useState(false)
 
@@ -45,8 +42,7 @@ export const useGameLogic = () => {
   }
 
   return {
-    category,
-    difficulty,
+    variant,
     randomSongQuery,
     isSongRevealed,
     setIsSongRevealed,

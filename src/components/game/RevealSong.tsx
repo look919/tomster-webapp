@@ -39,7 +39,7 @@ export const RevealSong = (props: RevealSongProps) => {
           variant="link"
           className="text-red-300 text-sm whitespace-normal text-center"
         >
-          Song doesn't work? Report it and get new one from the same category
+          Another song, please! (Report and Skip)
         </Button>
       </>
     )
@@ -55,7 +55,7 @@ export const RevealSong = (props: RevealSongProps) => {
       >
         {songTitle}
       </a>
-      <p className="text-purple-200 mb-1">{songArtists.join(', ')}</p>
+      <p className="text-purple-200 mb-1">{songArtists.join(' • ')}</p>
       <p className="text-purple-300 text-sm">{releaseYear}</p>
       <p className="text-purple-200"></p>
     </div>
