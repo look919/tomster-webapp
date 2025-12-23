@@ -15,7 +15,7 @@ interface FetchSongParams {
 }
 
 async function fetchRandomSong({ variant }: FetchSongParams): Promise<Song> {
-  const url = `http://localhost:5000/api/game/play/${variant}`
+  const url = `${import.meta.env.VITE_APP_BASE_URL}/api/game/play/${variant}`
   const response = await fetch(url)
 
   if (!response.ok) {
