@@ -29,7 +29,7 @@ export const useGameLogic = () => {
 
     try {
       await fetch(
-        `http://localhost:5000/api/game/songs/${randomSongQuery.data.id}/report`,
+        `${import.meta.env.VITE_APP_BASE_URL}/api/game/songs/${randomSongQuery.data.id}/report`,
         {
           method: 'POST',
         },
