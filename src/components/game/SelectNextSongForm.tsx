@@ -26,22 +26,22 @@ const colorSchemes = {
   difficulty: {
     selected:
       'border-cyan-500 bg-gradient-to-br from-cyan-600/30 to-cyan-800/30 text-white',
-    unselected: 'border-slate-600 hover:border-cyan-400 text-slate-300',
+    unselected: 'border-slate-800 hover:border-cyan-400 text-slate-300',
   },
   genre: {
     selected:
       'border-fuchsia-500 bg-gradient-to-br from-fuchsia-600/30 to-fuchsia-800/30 text-white',
-    unselected: 'border-slate-600 hover:border-fuchsia-400 text-slate-300',
+    unselected: 'border-slate-800 hover:border-fuchsia-400 text-slate-300',
   },
   country: {
     selected:
       'border-green-500 bg-gradient-to-br from-green-600/30 to-green-800/30 text-white',
-    unselected: 'border-slate-600 hover:border-green-400 text-slate-300',
+    unselected: 'border-slate-800 hover:border-green-400 text-slate-300',
   },
   year: {
     selected:
       'border-orange-500 bg-gradient-to-br from-orange-600/30 to-orange-800/30 text-white',
-    unselected: 'border-slate-600 hover:border-orange-400 text-slate-300',
+    unselected: 'border-slate-800 hover:border-orange-400 text-slate-300',
   },
 }
 

@@ -1,6 +1,7 @@
 import YouTube from 'react-youtube'
 import { AlertCircle, Loader2, Play, RefreshCw, Square } from 'lucide-react'
 import { useState } from 'react'
+import { useSearch } from '@tanstack/react-router'
 
 import { Button } from '../ui/button'
 import { SelectNextSongForm } from './SelectNextSongForm'
@@ -12,6 +13,7 @@ import { useGameLogic } from '@/hooks/useGameLogic'
 import { useSongPlayer } from '@/hooks/useSongPlayer'
 
 export const Game = () => {
+  const searchParams = useSearch({ from: '/' })
   const {
     variant,
     randomSongQuery,
@@ -31,6 +33,11 @@ export const Game = () => {
     onReady,
   } = useSongPlayer(randomSongQuery.data)
   const [isSelectingNextSong, setIsSelectingNextSong] = useState(false)
+
+  // Show SelectNextSongForm if no variant in URL
+  if (!searchParams.variant) {
+    return <SelectNextSongForm isVisible={true} onClose={() => {}} />
+  }
 
   if (randomSongQuery.error) {
     return (
@@ -54,8 +61,6 @@ export const Game = () => {
   if (randomSongQuery.isPending) {
     return <GameLoading variant={variant} />
   }
-
-  console.log('Random Song:', randomSongQuery.data)
 
   return (
     <>
