@@ -1,4 +1,5 @@
 import { Fragment } from 'react/jsx-runtime'
+import { useGameVariant } from '@/hooks/useGameVariant'
 
 const releaseYearLabels: Record<string, string> = {
   PRE2000: '<2000',
@@ -7,12 +8,8 @@ const releaseYearLabels: Record<string, string> = {
   RANDOM: 'RANDOM',
 }
 
-interface VariantDisplayProps {
-  variant: string
-}
-
-export const VariantDisplay = (props: VariantDisplayProps) => {
-  const { variant } = props
+export const VariantDisplay = () => {
+  const variant = useGameVariant()
 
   if (variant === 'RANDOM-RANDOM-RANDOM-RANDOM') {
     return (
@@ -80,6 +77,3 @@ export const VariantDisplay = (props: VariantDisplayProps) => {
     </div>
   )
 }
-
-// Deprecated: Use VariantDisplay instead
-export const CategoryAndDifficulty = VariantDisplay

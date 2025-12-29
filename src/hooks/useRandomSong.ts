@@ -1,4 +1,7 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useState } from 'react'
+import { useNavigate } from '@tanstack/react-router'
+import { useGameVariant } from './useGameVariant'
 
 interface Song {
   id: string
@@ -25,26 +28,30 @@ async function fetchRandomSong({ variant }: FetchSongParams): Promise<Song> {
   return response.json()
 }
 
-export function useRandomSong(variant: string) {
+export function useRandomSong() {
   const queryClient = useQueryClient()
+  const navigate = useNavigate()
+  const [fetchId, setFetchId] = useState(0)
+  const variant = useGameVariant()
 
   const randomSongQuery = useQuery<Song, Error>({
-    queryKey: ['song', variant],
+    queryKey: ['song', variant, fetchId],
     queryFn: () => fetchRandomSong({ variant }),
     staleTime: Infinity,
     retry: false,
   })
 
-  const nextSongMutation = useMutation<Song, Error, FetchSongParams>({
-    mutationFn: fetchRandomSong,
-    onSuccess: (newSong) => {
-      queryClient.setQueryData(['song', variant], newSong)
-    },
-  })
+  const handleGetNextSong = (newVariant: string | null) => {
+    // Remove old query data before fetching new song
+    queryClient.removeQueries({ queryKey: ['song', variant, fetchId] })
 
-  const handleNextSong = () => {
-    nextSongMutation.mutate({
-      variant,
+    setFetchId((prev) => prev + 1)
+    navigate({
+      to: '/',
+      search: {
+        variant: newVariant ?? variant,
+      },
+      // reloadDocument: variant === newVariant,
     })
   }
 
@@ -54,7 +61,7 @@ export function useRandomSong(variant: string) {
 
   return {
     randomSongQuery,
-    handleNextSong,
+    handleGetNextSong,
     handleRetry,
   }
 }

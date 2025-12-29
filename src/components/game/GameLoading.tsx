@@ -1,14 +1,10 @@
 import { Loader2 } from 'lucide-react'
-import { CategoryAndDifficulty } from './VariantDisplay'
+import { VariantDisplay } from './VariantDisplay'
 
-type GameLoadingProps = {
-  variant: string
-}
-
-export const GameLoading = ({ variant }: GameLoadingProps) => {
+export const GameLoading = () => {
   return (
     <div className="flex flex-col items-center justify-center gap-6">
-      <CategoryAndDifficulty variant={variant} />
+      <VariantDisplay />
       <button
         disabled
         className="w-32 h-32 rounded-full flex items-center justify-center transition-all transform hover:scale-105 active:scale-95 bg-purple-600 cursor-not-allowed opacity-50"

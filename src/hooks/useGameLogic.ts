@@ -1,51 +1,61 @@
-import { useEffect, useState } from 'react'
-import { useSearch } from '@tanstack/react-router'
-import z from 'zod'
+import { useState } from 'react'
+import { useMutation } from '@tanstack/react-query'
 import { useRandomSong } from './useRandomSong'
+import type { GameState } from '@/types/game'
 
-export const searchSchema = z.object({
-  variant: z.string().optional(),
-})
+async function reportSong(songId: string): Promise<void> {
+  const response = await fetch(
+    `${import.meta.env.VITE_APP_BASE_URL}/api/game/songs/${songId}/report`,
+    {
+      method: 'POST',
+    },
+  )
 
-type SearchSchema = z.infer<typeof searchSchema>
+  if (!response.ok) {
+    throw new Error('Failed to report song')
+  }
+}
 
 export const useGameLogic = () => {
-  const searchParams = useSearch({ from: '/' })
-  const variant =
-    (searchParams as SearchSchema).variant || 'RANDOM-RANDOM-RANDOM-RANDOM'
+  const [gameState, setGameState] = useState<GameState>('SONG-SELECTION')
 
-  const { handleNextSong, handleRetry, randomSongQuery } =
-    useRandomSong(variant)
+  const { handleGetNextSong, handleRetry, randomSongQuery } = useRandomSong()
 
-  const [isSongRevealed, setIsSongRevealed] = useState(false)
-
-  useEffect(() => {
-    // Reset song revealed state when a new song is loaded
-    setIsSongRevealed(false)
-  }, [randomSongQuery.data])
-
-  const handleReportAndSkip = async () => {
+  const handleReportAndSkip = () => {
     if (!randomSongQuery.data) return
-
-    try {
-      await fetch(
-        `${import.meta.env.VITE_APP_BASE_URL}/api/game/songs/${randomSongQuery.data.id}/report`,
-        {
-          method: 'POST',
-        },
-      )
-    } catch (error) {
-      console.error('Failed to report song:', error)
-    }
-
-    handleNextSong()
+    reportSongMutation.mutate(randomSongQuery.data.id)
   }
 
+  const handleRevealSong = () => {
+    setGameState('SONG-REVEALED')
+  }
+
+  const handleSelectNextSong = () => {
+    setGameState('SONG-SELECTION')
+  }
+
+  const handleGetNewSong = (newVariant: string | null) => {
+    handleGetNextSong(newVariant)
+    setGameState('SONG-PLAYING')
+  }
+
+  const reportSongMutation = useMutation({
+    mutationFn: reportSong,
+    onSuccess: () => {
+      handleGetNewSong(null)
+    },
+    onError: (error) => {
+      console.error('Failed to report song:', error)
+      handleGetNewSong(null)
+    },
+  })
+
   return {
-    variant,
+    gameState,
     randomSongQuery,
-    isSongRevealed,
-    setIsSongRevealed,
+    handleRevealSong,
+    handleSelectNextSong,
+    handleGetNewSong,
     handleRetry,
     handleReportAndSkip,
   }

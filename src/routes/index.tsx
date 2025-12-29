@@ -2,7 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 
 import { GameLayout } from '@/components/game/GameLayout'
 import { Game } from '@/components/game/Game'
-import { searchSchema } from '@/hooks/useGameLogic'
+import { searchSchema } from '@/types/game'
 
 export const Route = createFileRoute('/')({
   component: HomePage,

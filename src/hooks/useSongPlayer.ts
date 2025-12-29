@@ -1,15 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import type { YouTubePlayer } from 'react-youtube'
-
-interface Song {
-  id: string
-  title: string
-  artists: Array<string>
-  youtubeId: string
-  clipDuration: number
-  clipStartTime: number
-  releaseYear: number
-}
+import type { Song } from '@/types/game'
 
 export function useSongPlayer(song: Song | undefined) {
   const [playing, setPlaying] = useState(false)
