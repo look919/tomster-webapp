@@ -4,6 +4,7 @@ import { VariantDisplay } from './VariantDisplay'
 import { RevealSong } from './RevealSong'
 import { SongButton } from './SongButton'
 import { VolumeChanger } from './VolumeChanger'
+import { ReportSongDialog } from './ReportSongDialog'
 import type { GameState, Song } from '@/types/game'
 import { useSongPlayer } from '@/hooks/useSongPlayer'
 
@@ -11,7 +12,6 @@ interface MusicPlayerProps {
   song: Song
   gameState: GameState
   handleRevealSong: () => void
-  handleReportAndSkip: () => void
   handleSelectNextSong: () => void
 }
 
@@ -36,7 +36,13 @@ export const SongPlayer = (props: MusicPlayerProps) => {
         />
       </div>
 
-      <div className="flex flex-col gap-4">
+      <div className="relative flex flex-col gap-4">
+        <div className="absolute top-0 right-0">
+          <ReportSongDialog
+            songId={song.id}
+            isRevealed={gameState === 'SONG-REVEALED'}
+          />
+        </div>
         <div
           className={`flex flex-col items-center gap-6 ${
             gameState === 'SONG-PLAYING' || gameState === 'SONG-REVEALED'
