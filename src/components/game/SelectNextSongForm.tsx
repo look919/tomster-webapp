@@ -5,12 +5,10 @@ import { useGameVariant } from '@/hooks/useGameVariant'
 const difficulties = ['EASY', 'MEDIUM', 'HARD'] as const
 const genres = ['ROCK', 'RAP', 'POP', 'OTHER'] as const
 const countries = ['LOCAL', 'INTERNATIONAL'] as const
-const releaseYears = ['PRE2000', '2000TO2015', 'POST2015'] as const
 
-const releaseYearLabels: Record<string, string> = {
-  PRE2000: '<2000',
-  '2000TO2015': '2000-2015',
-  POST2015: '>2015',
+const countryLabels: Record<string, string> = {
+  LOCAL: 'LOCAL',
+  INTERNATIONAL: 'GLOBAL',
 }
 
 interface OptionGridProps {
@@ -19,29 +17,24 @@ interface OptionGridProps {
   onSelect: (value: string | null) => void
   label: string
   displayLabels?: Record<string, string>
-  colorScheme: 'difficulty' | 'genre' | 'country' | 'year'
+  colorScheme: 'difficulty' | 'genre' | 'country'
 }
 
 const colorSchemes = {
   difficulty: {
     selected:
-      'border-cyan-500 bg-gradient-to-br from-cyan-600/30 to-cyan-800/30 text-white',
-    unselected: 'border-slate-800 hover:border-cyan-400 text-slate-300',
+      'border-sky-600 bg-gradient-to-br from-sky-700/30 to-sky-900/30 text-white',
+    unselected: 'border-slate-800 hover:border-sky-500 text-slate-300',
   },
   genre: {
     selected:
-      'border-fuchsia-500 bg-gradient-to-br from-fuchsia-600/30 to-fuchsia-800/30 text-white',
-    unselected: 'border-slate-800 hover:border-fuchsia-400 text-slate-300',
+      'border-red-600 bg-gradient-to-br from-red-600/30 to-red-800/30 text-white',
+    unselected: 'border-slate-800 hover:border-red-500 text-slate-300',
   },
   country: {
     selected:
       'border-green-500 bg-gradient-to-br from-green-600/30 to-green-800/30 text-white',
     unselected: 'border-slate-800 hover:border-green-400 text-slate-300',
-  },
-  year: {
-    selected:
-      'border-orange-500 bg-gradient-to-br from-orange-600/30 to-orange-800/30 text-white',
-    unselected: 'border-slate-800 hover:border-orange-400 text-slate-300',
   },
 }
 
@@ -54,21 +47,29 @@ function OptionGrid({
   colorScheme,
 }: OptionGridProps) {
   const colors = colorSchemes[colorScheme]
+  // For 4 items (genre), use 2x2 grid on mobile; otherwise flex row
+  const isQuadGrid = options.length === 4
 
   return (
     <div className="space-y-3 w-full">
       <h3 className="text-sm font-semibold text-slate-200 text-center">
         {label}
       </h3>
-      <div className="flex flex-wrap gap-2 sm:gap-3 justify-center">
+      <div
+        className={
+          isQuadGrid
+            ? 'grid grid-cols-2 sm:flex sm:flex-wrap gap-2 sm:gap-3 justify-center'
+            : 'flex flex-wrap gap-2 sm:gap-3 justify-center'
+        }
+      >
         {options.map((option) => (
           <button
             type="button"
             key={option}
             onClick={() => onSelect(selected === option ? null : option)}
-            className={`flex items-center justify-center px-4 sm:px-6 py-3 sm:py-4 rounded-lg border-2 transition-all hover:scale-105 active:scale-95 min-w-[120px] ${
-              selected === option ? colors.selected : colors.unselected
-            }`}
+            className={`flex items-center justify-center px-4 sm:px-6 py-3 sm:py-4 rounded-lg border-2 transition-all hover:scale-105 active:scale-95 ${
+              isQuadGrid ? 'min-w-0' : 'min-w-[85px] sm:min-w-[120px]'
+            } ${selected === option ? colors.selected : colors.unselected}`}
           >
             <span className="text-xs sm:text-sm font-medium">
               {displayLabels?.[option] || option}
@@ -88,7 +89,7 @@ export const SelectNextSongForm = (props: SelectNextSongDialogProps) => {
   const { handleGetNextSong } = props
   const variant = useGameVariant()
 
-  // Parse variant string: DIFFICULTY-GENRE-COUNTRY-YEAR
+  // Parse variant string: DIFFICULTY-GENRE-COUNTRY
   const parts = variant.split('-')
 
   const form = useForm({
@@ -96,10 +97,9 @@ export const SelectNextSongForm = (props: SelectNextSongDialogProps) => {
       difficulty: parts[0] === 'RANDOM' ? null : parts[0] || null,
       genre: parts[1] === 'RANDOM' ? null : parts[1] || null,
       country: parts[2] === 'RANDOM' ? null : parts[2] || null,
-      year: parts[3] === 'RANDOM' ? null : parts[3] || null,
     },
     onSubmit: ({ value }) => {
-      const newVariant = `${value.difficulty || 'RANDOM'}-${value.genre || 'RANDOM'}-${value.country || 'RANDOM'}-${value.year || 'RANDOM'}`
+      const newVariant = `${value.difficulty || 'RANDOM'}-${value.genre || 'RANDOM'}-${value.country || 'RANDOM'}`
       handleGetNextSong(newVariant)
     },
   })
@@ -118,7 +118,7 @@ export const SelectNextSongForm = (props: SelectNextSongDialogProps) => {
           Select Song Options
         </h2>
         <p className="text-sm sm:text-base text-slate-300">
-          Choose difficulty, genre, country, and release year for the next song.
+          Choose difficulty, genre, and song recognition for the next song.
         </p>
       </div>
       <div className="space-y-5 sm:space-y-6 w-full">
@@ -150,20 +150,9 @@ export const SelectNextSongForm = (props: SelectNextSongDialogProps) => {
               options={countries}
               selected={field.state.value}
               onSelect={(value) => field.handleChange(value)}
-              label="Country"
+              label="Song Recognition"
+              displayLabels={countryLabels}
               colorScheme="country"
-            />
-          )}
-        </form.Field>
-        <form.Field name="year">
-          {(field) => (
-            <OptionGrid
-              options={releaseYears}
-              selected={field.state.value}
-              onSelect={(value) => field.handleChange(value)}
-              label="Release Year"
-              displayLabels={releaseYearLabels}
-              colorScheme="year"
             />
           )}
         </form.Field>

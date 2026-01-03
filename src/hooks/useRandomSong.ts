@@ -16,6 +16,7 @@ export function useRandomSong() {
     queryFn: () => fetchRandomSong({ variant }),
     staleTime: Infinity,
     retry: false,
+    enabled: fetchId > 0, // Only fetch when user explicitly requests a song
   })
 
   const handleGetNextSong = (newVariant: string | null) => {

@@ -1,17 +1,15 @@
 import { Fragment } from 'react/jsx-runtime'
 import { useGameVariant } from '@/hooks/useGameVariant'
 
-const releaseYearLabels: Record<string, string> = {
-  PRE2000: '<2000',
-  '2000TO2015': '2000-2015',
-  POST2015: '>2015',
-  RANDOM: 'RANDOM',
+const countryLabels: Record<string, string> = {
+  LOCAL: 'LOCAL',
+  INTERNATIONAL: 'GLOBAL',
 }
 
 export const VariantDisplay = () => {
   const variant = useGameVariant()
 
-  if (variant === 'RANDOM-RANDOM-RANDOM-RANDOM') {
+  if (variant === 'RANDOM-RANDOM-RANDOM') {
     return (
       <div className="text-center">
         <div className="inline-flex flex-wrap items-center justify-center gap-2 px-4 py-2 bg-slate-800/50 rounded-lg border border-slate-600">
@@ -23,13 +21,13 @@ export const VariantDisplay = () => {
     )
   }
 
-  const [difficulty, genre, country, releaseYear] = variant.split('-')
+  const [difficulty, genre, country] = variant.split('-')
 
   const items = [
     difficulty !== 'RANDOM' && (
       <span
         key="difficulty"
-        className="px-3 py-1 rounded-md text-sm font-semibold text-white bg-linear-to-br from-cyan-600 to-cyan-800"
+        className="px-3 py-1 rounded-md text-sm font-semibold text-white bg-linear-to-br from-sky-700 to-sky-900"
       >
         {difficulty}
       </span>
@@ -37,7 +35,7 @@ export const VariantDisplay = () => {
     genre !== 'RANDOM' && (
       <span
         key="genre"
-        className="px-3 py-1 rounded-md text-sm font-semibold text-white bg-linear-to-br from-fuchsia-600 to-fuchsia-800"
+        className="px-3 py-1 rounded-md text-sm font-semibold text-white bg-linear-to-br from-red-600 to-red-800"
       >
         {genre}
       </span>
@@ -47,15 +45,7 @@ export const VariantDisplay = () => {
         key="country"
         className="px-3 py-1 rounded-md text-sm font-semibold text-white bg-linear-to-br from-green-600 to-green-800"
       >
-        {country}
-      </span>
-    ),
-    releaseYear !== 'RANDOM' && (
-      <span
-        key="year"
-        className="px-3 py-1 rounded-md text-sm font-semibold text-white bg-linear-to-br from-orange-600 to-orange-800"
-      >
-        {releaseYearLabels[releaseYear] || releaseYear}
+        {countryLabels[country] || country}
       </span>
     ),
   ].filter(Boolean)

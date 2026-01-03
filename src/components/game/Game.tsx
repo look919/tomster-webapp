@@ -28,6 +28,11 @@ export const Game = () => {
     )
   }
 
+  // This is the initial state before the user requests any song, later we wanna stick to the last render to keep the player rendered but hidden
+  if (!randomSongQuery.isEnabled) {
+    return <SelectNextSongForm handleGetNextSong={handlers.handleGetNewSong} />
+  }
+
   if (randomSongQuery.isPending) {
     return <GameLoading />
   }

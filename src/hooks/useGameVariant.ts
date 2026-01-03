@@ -4,7 +4,7 @@ import type { SearchSchema } from '@/types/game'
 export const useGameVariant = () => {
   const searchParams = useSearch({ from: '/' })
   const variant =
-    (searchParams as SearchSchema).variant || 'RANDOM-RANDOM-RANDOM-RANDOM'
+    (searchParams as SearchSchema).variant || 'RANDOM-RANDOM-RANDOM'
 
   return variant
 }

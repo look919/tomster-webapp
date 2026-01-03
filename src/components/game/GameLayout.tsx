@@ -10,7 +10,7 @@ export function GameLayout({ children }: GameLayoutProps) {
           <h1 className="text-6xl font-bold text-white mb-4">Tomster</h1>
           <p className="text-xl text-purple-200">Music Guessing Game</p>
         </div>
-        <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 shadow-2xl">
+        <div className="bg-white/10 backdrop-blur-lg rounded-2xl py-6 px-4 md:p-8 shadow-2xl overflow-visible">
           {children}
         </div>
       </div>
