@@ -1,14 +1,39 @@
 import { useForm } from '@tanstack/react-form'
 import { Button } from '../ui/button'
+import { Slider } from '../ui/slider'
 import { useGameVariant } from '@/hooks/useGameVariant'
 
-const difficulties = ['EASY', 'MEDIUM', 'HARD'] as const
+const difficulties = ['VERYEASY', 'EASY', 'MEDIUM', 'HARD', 'VERYHARD'] as const
 const genres = ['ROCK', 'RAP', 'POP', 'OTHER'] as const
 const countries = ['LOCAL', 'INTERNATIONAL'] as const
 
 const countryLabels: Record<string, string> = {
   LOCAL: 'LOCAL',
   INTERNATIONAL: 'GLOBAL',
+}
+
+const difficultyLabels: Record<string, string> = {
+  RANDOM: 'RANDOM',
+  VERYEASY: 'VERY EASY',
+  EASY: 'EASY',
+  MEDIUM: 'MEDIUM',
+  HARD: 'HARD',
+  VERYHARD: 'VERY HARD',
+}
+
+// Convert difficulty string to slider value (0-5, where 0 = RANDOM)
+const difficultyToValue = (difficulty: string | null): number => {
+  if (!difficulty || difficulty === 'RANDOM') return 0
+  const index = difficulties.indexOf(
+    difficulty as (typeof difficulties)[number],
+  )
+  return index === -1 ? 0 : index + 1
+}
+
+// Convert slider value (0-5) to difficulty string (0 = RANDOM/null)
+const valueToDifficulty = (value: number): string | null => {
+  if (value === 0) return null
+  return difficulties[value - 1] || null
 }
 
 interface OptionGridProps {
@@ -89,17 +114,17 @@ export const SelectNextSongForm = (props: SelectNextSongDialogProps) => {
   const { handleGetNextSong } = props
   const variant = useGameVariant()
 
-  // Parse variant string: DIFFICULTY-GENRE-COUNTRY
+  // Parse variant string: DIFFICULTY-LOCALIZATION-GENRE
   const parts = variant.split('-')
 
   const form = useForm({
     defaultValues: {
       difficulty: parts[0] === 'RANDOM' ? null : parts[0] || null,
-      genre: parts[1] === 'RANDOM' ? null : parts[1] || null,
-      country: parts[2] === 'RANDOM' ? null : parts[2] || null,
+      country: parts[1] === 'RANDOM' ? null : parts[1] || null,
+      genre: parts[2] === 'RANDOM' ? null : parts[2] || null,
     },
     onSubmit: ({ value }) => {
-      const newVariant = `${value.difficulty || 'RANDOM'}-${value.genre || 'RANDOM'}-${value.country || 'RANDOM'}`
+      const newVariant = `${value.difficulty || 'RANDOM'}-${value.country || 'RANDOM'}-${value.genre || 'RANDOM'}`
       handleGetNextSong(newVariant)
     },
   })
@@ -123,15 +148,40 @@ export const SelectNextSongForm = (props: SelectNextSongDialogProps) => {
       </div>
       <div className="space-y-5 sm:space-y-6 w-full">
         <form.Field name="difficulty">
-          {(field) => (
-            <OptionGrid
-              options={difficulties}
-              selected={field.state.value}
-              onSelect={(value) => field.handleChange(value)}
-              label="Difficulty"
-              colorScheme="difficulty"
-            />
-          )}
+          {(field) => {
+            const currentValue = difficultyToValue(field.state.value)
+            const currentDifficulty = field.state.value || 'RANDOM'
+            const isRandom = currentValue === 0
+            return (
+              <div className="space-y-3 w-full">
+                <h3 className="text-sm font-semibold text-slate-200 text-center">
+                  Difficulty
+                </h3>
+                <div className="flex flex-col items-center gap-3">
+                  <span
+                    className={`px-4 py-1.5 rounded-md text-sm font-semibold text-white ${
+                      isRandom
+                        ? 'bg-linear-to-br from-amber-500 to-orange-600'
+                        : 'bg-linear-to-br from-sky-700 to-sky-900'
+                    }`}
+                  >
+                    {difficultyLabels[currentDifficulty]}
+                  </span>
+                  <div className="w-full max-w-xs px-2">
+                    <Slider
+                      value={[currentValue]}
+                      onValueChange={([value]) =>
+                        field.handleChange(valueToDifficulty(value))
+                      }
+                      min={0}
+                      max={5}
+                      step={1}
+                    />
+                  </div>
+                </div>
+              </div>
+            )
+          }}
         </form.Field>
         <form.Field name="genre">
           {(field) => (
