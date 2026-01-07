@@ -78,7 +78,7 @@ function OptionGrid({
           onClick={() => onSelect(null)}
           className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
             isRandom
-              ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/25'
+              ? 'bg-linear-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/25'
               : 'border border-slate-700 text-slate-400 hover:border-amber-500 hover:text-amber-400'
           }`}
         >
@@ -152,7 +152,7 @@ export const SelectNextSongForm = (props: SelectNextSongDialogProps) => {
                     onClick={() => field.handleChange(null)}
                     className={`px-4 py-2 rounded-full text-sm font-medium transition-all shrink-0 ${
                       isRandom
-                        ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/25'
+                        ? 'bg-linear-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/25'
                         : 'border border-slate-700 text-slate-400 hover:border-amber-500 hover:text-amber-400'
                     }`}
                   >
@@ -171,7 +171,7 @@ export const SelectNextSongForm = (props: SelectNextSongDialogProps) => {
                       />
                     </div>
                     {!isRandom && (
-                      <span className="text-sm font-medium text-sky-400 min-w-[80px] text-right">
+                      <span className="text-sm font-medium text-sky-400 min-w-20 text-right">
                         {difficultyLabels[field.state.value || 'MEDIUM']}
                       </span>
                     )}

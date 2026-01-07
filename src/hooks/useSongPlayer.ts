@@ -32,19 +32,25 @@ export function useSongPlayer(song: Song | undefined) {
   const onStateChange = useCallback(
     (event: { data: number }) => {
       // State 1 = playing
-      if (event.data === 1 && pendingPlayRef.current && song) {
-        pendingPlayRef.current = false
-        // Now the audio is actually playing, start the countdown timer
-        timerRef.current = setTimeout(() => {
-          if (playerRef.current) {
-            try {
-              playerRef.current.pauseVideo()
-            } catch (error) {
-              console.error('Error pausing video:', error)
+      if (event.data === 1) {
+        // Override YouTube's media session metadata with ours
+        // Use small delay to ensure it happens after YouTube sets theirs
+        setTimeout(() => setMediaSessionMetadata(), 100)
+
+        if (pendingPlayRef.current && song) {
+          pendingPlayRef.current = false
+          // Now the audio is actually playing, start the countdown timer
+          timerRef.current = setTimeout(() => {
+            if (playerRef.current) {
+              try {
+                playerRef.current.pauseVideo()
+              } catch (error) {
+                console.error('Error pausing video:', error)
+              }
             }
-          }
-          setPlaying(false)
-        }, song.clipDuration * 1000)
+            setPlaying(false)
+          }, song.clipDuration * 1000)
+        }
       }
     },
     [song],
