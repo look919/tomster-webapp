@@ -2,6 +2,17 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import type { YouTubePlayer } from 'react-youtube'
 import type { Song } from '@/types/game'
 
+// Set Media Session metadata to hide real song info from phone's media controls
+function setMediaSessionMetadata() {
+  if (!('mediaSession' in navigator)) return
+
+  navigator.mediaSession.metadata = new MediaMetadata({
+    title: 'TOMSTER',
+    artist: '???',
+    album: 'Guess the song!',
+  })
+}
+
 export function useSongPlayer(song: Song | undefined) {
   const [playing, setPlaying] = useState(false)
   const [ready, setReady] = useState(false)
@@ -53,6 +64,8 @@ export function useSongPlayer(song: Song | undefined) {
       setPlaying(true)
       setHasPlayed(true)
       pendingPlayRef.current = true
+      // Set placeholder metadata to hide song info from phone's media controls
+      setMediaSessionMetadata()
       playerRef.current.seekTo(song.clipStartTime, true)
       playerRef.current.playVideo()
     } catch (error) {
@@ -94,6 +107,10 @@ export function useSongPlayer(song: Song | undefined) {
         } catch (error) {
           // Player might be destroyed, ignore error
         }
+      }
+      // Clear media session metadata on cleanup
+      if ('mediaSession' in navigator) {
+        navigator.mediaSession.metadata = null
       }
     }
   }, [song])
