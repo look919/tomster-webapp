@@ -66,17 +66,22 @@ function OptionGrid({
 }: OptionGridProps) {
   const colors = colorSchemes[colorScheme]
   const isRandom = selected === null
+  const totalItems = options.length + 1 // +1 for RANDOM
+
+  // For 5 items (genre): 3 cols with empty placeholder to center bottom row
+  // For 3 items (recognition): 3 cols, fits in one row
+  const needsPlaceholder = totalItems === 5
 
   return (
     <div className="space-y-3 w-full">
       <h3 className="text-xs font-medium text-slate-400 uppercase tracking-wider">
         {label}
       </h3>
-      <div className="flex flex-wrap gap-2">
+      <div className="grid grid-cols-3 sm:flex sm:flex-wrap gap-2">
         <button
           type="button"
           onClick={() => onSelect(null)}
-          className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+          className={`px-3 py-2 rounded-full text-sm font-medium transition-all text-center ${
             isRandom
               ? 'bg-linear-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/25'
               : 'border border-slate-700 text-slate-400 hover:border-amber-500 hover:text-amber-400'
@@ -84,19 +89,25 @@ function OptionGrid({
         >
           RANDOM
         </button>
-        {options.map((option) => (
-          <button
-            type="button"
-            key={option}
-            onClick={() => onSelect(option)}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-              selected === option
-                ? `${colors.selected} shadow-lg`
-                : colors.unselected
-            } border`}
-          >
-            {displayLabels?.[option] || option}
-          </button>
+        {options.map((option, index) => (
+          <>
+            {/* Add empty placeholder before 3rd item (index 2) to push last 2 items to positions 2 & 3 */}
+            {needsPlaceholder && index === 2 && (
+              <div key="placeholder" className="sm:hidden" />
+            )}
+            <button
+              type="button"
+              key={option}
+              onClick={() => onSelect(option)}
+              className={`px-3 py-2 rounded-full text-sm font-medium transition-all text-center ${
+                selected === option
+                  ? `${colors.selected} shadow-lg`
+                  : colors.unselected
+              } border`}
+            >
+              {displayLabels?.[option] || option}
+            </button>
+          </>
         ))}
       </div>
     </div>
@@ -146,11 +157,11 @@ export const SelectNextSongForm = (props: SelectNextSongDialogProps) => {
                 <h3 className="text-xs font-medium text-slate-400 uppercase tracking-wider">
                   Difficulty
                 </h3>
-                <div className="flex items-center gap-3">
+                <div className="grid grid-cols-3 sm:flex sm:flex-wrap gap-2 items-center">
                   <button
                     type="button"
                     onClick={() => field.handleChange(null)}
-                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all shrink-0 ${
+                    className={`px-3 py-2 rounded-full text-sm font-medium transition-all text-center ${
                       isRandom
                         ? 'bg-linear-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/25'
                         : 'border border-slate-700 text-slate-400 hover:border-amber-500 hover:text-amber-400'
@@ -158,8 +169,15 @@ export const SelectNextSongForm = (props: SelectNextSongDialogProps) => {
                   >
                     RANDOM
                   </button>
-                  <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <div className={`flex-1 ${isRandom ? 'opacity-40' : ''}`}>
+                  <div className="relative col-span-2 sm:flex-1 flex flex-col gap-2">
+                    {!isRandom && (
+                      <span className="absolute inset-x-0 -top-8 text-sm font-medium text-sky-400 text-center">
+                        {difficultyLabels[field.state.value || 'MEDIUM']}
+                      </span>
+                    )}
+                    <div
+                      className={`w-full px-1 ${isRandom ? 'opacity-40' : ''}`}
+                    >
                       <Slider
                         value={[currentValue]}
                         onValueChange={([value]) =>
@@ -170,11 +188,6 @@ export const SelectNextSongForm = (props: SelectNextSongDialogProps) => {
                         step={1}
                       />
                     </div>
-                    {!isRandom && (
-                      <span className="text-sm font-medium text-sky-400 min-w-20 text-right">
-                        {difficultyLabels[field.state.value || 'MEDIUM']}
-                      </span>
-                    )}
                   </div>
                 </div>
               </div>
