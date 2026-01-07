@@ -2,6 +2,7 @@ import { useForm } from '@tanstack/react-form'
 import { Button } from '../ui/button'
 import { Slider } from '../ui/slider'
 import { useGameVariant } from '@/hooks/useGameVariant'
+import { Fragment } from 'react/jsx-runtime'
 
 const difficulties = ['VERYEASY', 'EASY', 'MEDIUM', 'HARD', 'VERYHARD'] as const
 const genres = ['POP', 'ROCK', 'RAP', 'OTHER'] as const
@@ -90,7 +91,7 @@ function OptionGrid({
           RANDOM
         </button>
         {options.map((option, index) => (
-          <>
+          <Fragment key={option}>
             {/* Add empty placeholder before 3rd item (index 2) to push last 2 items to positions 2 & 3 */}
             {needsPlaceholder && index === 2 && (
               <div key="placeholder" className="sm:hidden" />
@@ -107,7 +108,7 @@ function OptionGrid({
             >
               {displayLabels?.[option] || option}
             </button>
-          </>
+          </Fragment>
         ))}
       </div>
     </div>
