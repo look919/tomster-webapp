@@ -183,17 +183,6 @@ export const SelectNextSongForm = (props: SelectNextSongDialogProps) => {
             )
           }}
         </form.Field>
-        <form.Field name="genre">
-          {(field) => (
-            <OptionGrid
-              options={genres}
-              selected={field.state.value}
-              onSelect={(value) => field.handleChange(value)}
-              label="Genre"
-              colorScheme="genre"
-            />
-          )}
-        </form.Field>
         <form.Field name="country">
           {(field) => (
             <OptionGrid
@@ -203,6 +192,17 @@ export const SelectNextSongForm = (props: SelectNextSongDialogProps) => {
               label="Song Recognition"
               displayLabels={countryLabels}
               colorScheme="country"
+            />
+          )}
+        </form.Field>
+        <form.Field name="genre">
+          {(field) => (
+            <OptionGrid
+              options={genres}
+              selected={field.state.value}
+              onSelect={(value) => field.handleChange(value)}
+              label="Genre"
+              colorScheme="genre"
             />
           )}
         </form.Field>

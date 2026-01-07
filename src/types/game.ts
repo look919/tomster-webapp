@@ -2,6 +2,7 @@ import z from 'zod'
 
 export const searchSchema = z.object({
   variant: z.string().optional(),
+  playSong: z.boolean().optional(),
 })
 
 export type SearchSchema = z.infer<typeof searchSchema>

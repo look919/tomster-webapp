@@ -1,4 +1,6 @@
 import { Fragment } from 'react/jsx-runtime'
+import { useSearch } from '@tanstack/react-router'
+import type { SearchSchema } from '@/types/game'
 import { useGameVariant } from '@/hooks/useGameVariant'
 
 const countryLabels: Record<string, string> = {
@@ -16,6 +18,20 @@ const difficultyLabels: Record<string, string> = {
 
 export const VariantDisplay = () => {
   const variant = useGameVariant()
+  const searchParams = useSearch({ from: '/' })
+  const playSong = (searchParams as SearchSchema).playSong
+
+  if (playSong) {
+    return (
+      <div className="text-center">
+        <div className="inline-flex flex-wrap items-center justify-center gap-2 px-4 py-2 bg-slate-800/50 rounded-lg border border-slate-600">
+          <span className="px-3 py-1 rounded-md text-sm font-semibold text-white bg-linear-to-br from-amber-500 to-orange-600">
+            QR
+          </span>
+        </div>
+      </div>
+    )
+  }
 
   if (variant === 'RANDOM-RANDOM-RANDOM') {
     return (

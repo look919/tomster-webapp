@@ -3,11 +3,14 @@ import { AlertCircle, RefreshCw } from 'lucide-react'
 import { SelectNextSongForm } from './SelectNextSongForm'
 import { GameLoading } from './GameLoading'
 import { SongPlayer } from './SongPlayer'
+import { HiddenPlayer } from './HiddenPlayer'
 import { useGameLogic } from '@/hooks/useGameLogic'
+import { useSongPlayer } from '@/hooks/useSongPlayer'
 
 export const Game = () => {
   const { gameState, randomSongQuery, handleRetry, ...handlers } =
     useGameLogic()
+  const player = useSongPlayer(randomSongQuery.data)
 
   if (randomSongQuery.error) {
     return (
@@ -28,8 +31,8 @@ export const Game = () => {
     )
   }
 
-  // This is the initial state before the user requests any song, later we wanna stick to the last render to keep the player rendered but hidden
-  if (!randomSongQuery.isEnabled) {
+  // Initial state before user requests any song (query is disabled)
+  if (!randomSongQuery.isFetching && !randomSongQuery.data) {
     return <SelectNextSongForm handleGetNextSong={handlers.handleGetNewSong} />
   }
 
@@ -39,9 +42,11 @@ export const Game = () => {
 
   return (
     <>
+      <HiddenPlayer song={randomSongQuery.data} player={player} />
       {gameState === 'SONG-PLAYING' || gameState === 'SONG-REVEALED' ? (
         <SongPlayer
           song={randomSongQuery.data}
+          player={player}
           gameState={gameState}
           {...handlers}
         />

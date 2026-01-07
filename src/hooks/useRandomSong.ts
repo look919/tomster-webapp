@@ -1,14 +1,17 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { useState } from 'react'
-import { useNavigate } from '@tanstack/react-router'
+import { useState, useEffect } from 'react'
+import { useNavigate, useSearch } from '@tanstack/react-router'
 import { useGameVariant } from './useGameVariant'
 import type { Song } from '@/api/game'
+import type { SearchSchema } from '@/types/game'
 import { fetchRandomSong } from '@/api/game'
 
 export function useRandomSong() {
   const queryClient = useQueryClient()
   const navigate = useNavigate()
-  const [fetchId, setFetchId] = useState(0)
+  const searchParams = useSearch({ from: '/' })
+  const playSong = (searchParams as SearchSchema).playSong
+  const [fetchId, setFetchId] = useState(playSong ? 1 : 0)
   const variant = useGameVariant()
 
   const randomSongQuery = useQuery<Song, Error>({

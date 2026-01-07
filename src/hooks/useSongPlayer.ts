@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import type { YouTubePlayer } from 'react-youtube'
 import type { Song } from '@/types/game'
 
@@ -9,12 +9,35 @@ export function useSongPlayer(song: Song | undefined) {
   const [volume, setVolume] = useState(50)
   const playerRef = useRef<YouTubePlayer | null>(null)
   const timerRef = useRef<NodeJS.Timeout | null>(null)
+  const pendingPlayRef = useRef(false)
 
   const onReady = (event: { target: YouTubePlayer }) => {
     playerRef.current = event.target
     playerRef.current.setVolume(volume)
     setReady(true)
   }
+
+  // Called when YouTube player state changes
+  const onStateChange = useCallback(
+    (event: { data: number }) => {
+      // State 1 = playing
+      if (event.data === 1 && pendingPlayRef.current && song) {
+        pendingPlayRef.current = false
+        // Now the audio is actually playing, start the countdown timer
+        timerRef.current = setTimeout(() => {
+          if (playerRef.current) {
+            try {
+              playerRef.current.pauseVideo()
+            } catch (error) {
+              console.error('Error pausing video:', error)
+            }
+          }
+          setPlaying(false)
+        }, song.clipDuration * 1000)
+      }
+    },
+    [song],
+  )
 
   const handleVolumeChange = (newVolume: number) => {
     setVolume(newVolume)
@@ -29,27 +52,18 @@ export function useSongPlayer(song: Song | undefined) {
     try {
       setPlaying(true)
       setHasPlayed(true)
+      pendingPlayRef.current = true
       playerRef.current.seekTo(song.clipStartTime, true)
       playerRef.current.playVideo()
-
-      // Stop playback after clipDuration
-      timerRef.current = setTimeout(() => {
-        if (playerRef.current) {
-          try {
-            playerRef.current.pauseVideo()
-          } catch (error) {
-            console.error('Error pausing video:', error)
-          }
-        }
-        setPlaying(false)
-      }, song.clipDuration * 1000)
     } catch (error) {
       console.error('Error playing video:', error)
       setPlaying(false)
+      pendingPlayRef.current = false
     }
   }
 
   const handleStop = () => {
+    pendingPlayRef.current = false
     if (timerRef.current) {
       clearTimeout(timerRef.current)
     }
@@ -68,6 +82,7 @@ export function useSongPlayer(song: Song | undefined) {
     setReady(false)
     setPlaying(false)
     setHasPlayed(false)
+    pendingPlayRef.current = false
 
     return () => {
       if (timerRef.current) {
@@ -92,5 +107,6 @@ export function useSongPlayer(song: Song | undefined) {
     handleStop,
     handleVolumeChange,
     onReady,
+    onStateChange,
   }
 }

@@ -1,41 +1,25 @@
-import YouTube from 'react-youtube'
-
 import { VariantDisplay } from './VariantDisplay'
 import { RevealSong } from './RevealSong'
 import { SongButton } from './SongButton'
 import { VolumeChanger } from './VolumeChanger'
 import { ReportSongDialog } from './ReportSongDialog'
 import type { GameState, Song } from '@/types/game'
-import { useSongPlayer } from '@/hooks/useSongPlayer'
+import type { useSongPlayer } from '@/hooks/useSongPlayer'
 
 interface MusicPlayerProps {
   song: Song
+  player: ReturnType<typeof useSongPlayer>
   gameState: GameState
   handleRevealSong: () => void
   handleSelectNextSong: () => void
 }
 
 export const SongPlayer = (props: MusicPlayerProps) => {
-  const { song, gameState, handleRevealSong, handleSelectNextSong } = props
-  const player = useSongPlayer(song)
+  const { song, player, gameState, handleRevealSong, handleSelectNextSong } =
+    props
 
   return (
     <>
-      <div className="hidden">
-        <YouTube
-          videoId={props.song.youtubeId}
-          onReady={player.onReady}
-          opts={{
-            playerVars: {
-              autoplay: 0,
-              controls: 0,
-              disablekb: 1,
-              modestbranding: 1,
-            },
-          }}
-        />
-      </div>
-
       <div className="relative flex flex-col gap-4">
         <div className="absolute -top-4 -right-4">
           <ReportSongDialog

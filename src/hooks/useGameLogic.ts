@@ -1,10 +1,16 @@
 import { useState } from 'react'
+import { useSearch } from '@tanstack/react-router'
 import { useRandomSong } from './useRandomSong'
-import type { GameState } from '@/types/game'
+import type { GameState, SearchSchema } from '@/types/game'
 
 export const useGameLogic = () => {
-  const [gameState, setGameState] = useState<GameState>('SONG-SELECTION')
+  const searchParams = useSearch({ from: '/' })
+  const playSong = (searchParams as SearchSchema).playSong
+  const [gameState, setGameState] = useState<GameState>(
+    playSong ? 'SONG-PLAYING' : 'SONG-SELECTION',
+  )
 
+  console.log('useGameLogic - playSong:', playSong)
   const { handleGetNextSong, handleRetry, randomSongQuery } = useRandomSong()
 
   const handleRevealSong = () => {
