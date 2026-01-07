@@ -10,7 +10,6 @@ export const useGameLogic = () => {
     playSong ? 'SONG-PLAYING' : 'SONG-SELECTION',
   )
 
-  console.log('useGameLogic - playSong:', playSong)
   const { handleGetNextSong, handleRetry, randomSongQuery } = useRandomSong()
 
   const handleRevealSong = () => {
