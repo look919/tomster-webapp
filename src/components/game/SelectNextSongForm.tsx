@@ -13,7 +13,6 @@ const countryLabels: Record<string, string> = {
 }
 
 const difficultyLabels: Record<string, string> = {
-  RANDOM: 'RANDOM',
   VERYEASY: 'VERY EASY',
   EASY: 'EASY',
   MEDIUM: 'MEDIUM',
@@ -21,19 +20,18 @@ const difficultyLabels: Record<string, string> = {
   VERYHARD: 'VERY HARD',
 }
 
-// Convert difficulty string to slider value (0-5, where 0 = RANDOM)
+// Convert difficulty string to slider value (1-5)
 const difficultyToValue = (difficulty: string | null): number => {
-  if (!difficulty || difficulty === 'RANDOM') return 0
+  if (!difficulty) return 3 // Default to MEDIUM
   const index = difficulties.indexOf(
     difficulty as (typeof difficulties)[number],
   )
-  return index === -1 ? 0 : index + 1
+  return index === -1 ? 3 : index + 1
 }
 
-// Convert slider value (0-5) to difficulty string (0 = RANDOM/null)
-const valueToDifficulty = (value: number): string | null => {
-  if (value === 0) return null
-  return difficulties[value - 1] || null
+// Convert slider value (1-5) to difficulty string
+const valueToDifficulty = (value: number): string => {
+  return difficulties[value - 1] || 'MEDIUM'
 }
 
 interface OptionGridProps {
@@ -42,24 +40,19 @@ interface OptionGridProps {
   onSelect: (value: string | null) => void
   label: string
   displayLabels?: Record<string, string>
-  colorScheme: 'difficulty' | 'genre' | 'country'
+  colorScheme: 'genre' | 'country'
 }
 
 const colorSchemes = {
-  difficulty: {
-    selected:
-      'border-sky-600 bg-gradient-to-br from-sky-700/30 to-sky-900/30 text-white',
-    unselected: 'border-slate-800 hover:border-sky-500 text-slate-300',
-  },
   genre: {
     selected:
       'border-red-600 bg-gradient-to-br from-red-600/30 to-red-800/30 text-white',
-    unselected: 'border-slate-800 hover:border-red-500 text-slate-300',
+    unselected: 'border-slate-700 hover:border-red-500 text-slate-300',
   },
   country: {
     selected:
       'border-green-500 bg-gradient-to-br from-green-600/30 to-green-800/30 text-white',
-    unselected: 'border-slate-800 hover:border-green-400 text-slate-300',
+    unselected: 'border-slate-700 hover:border-green-400 text-slate-300',
   },
 }
 
@@ -72,33 +65,37 @@ function OptionGrid({
   colorScheme,
 }: OptionGridProps) {
   const colors = colorSchemes[colorScheme]
-  // For 4 items (genre), use 2x2 grid on mobile; otherwise flex row
-  const isQuadGrid = options.length === 4
+  const isRandom = selected === null
 
   return (
     <div className="space-y-3 w-full">
-      <h3 className="text-sm font-semibold text-slate-200 text-center">
+      <h3 className="text-xs font-medium text-slate-400 uppercase tracking-wider">
         {label}
       </h3>
-      <div
-        className={
-          isQuadGrid
-            ? 'grid grid-cols-2 sm:flex sm:flex-wrap gap-2 sm:gap-3 justify-center'
-            : 'flex flex-wrap gap-2 sm:gap-3 justify-center'
-        }
-      >
+      <div className="flex flex-wrap gap-2">
+        <button
+          type="button"
+          onClick={() => onSelect(null)}
+          className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+            isRandom
+              ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/25'
+              : 'border border-slate-700 text-slate-400 hover:border-amber-500 hover:text-amber-400'
+          }`}
+        >
+          RANDOM
+        </button>
         {options.map((option) => (
           <button
             type="button"
             key={option}
-            onClick={() => onSelect(selected === option ? null : option)}
-            className={`flex items-center justify-center px-4 sm:px-6 py-3 sm:py-4 rounded-lg border-2 transition-all hover:scale-105 active:scale-95 ${
-              isQuadGrid ? 'min-w-0' : 'min-w-[85px] sm:min-w-[120px]'
-            } ${selected === option ? colors.selected : colors.unselected}`}
+            onClick={() => onSelect(option)}
+            className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+              selected === option
+                ? `${colors.selected} shadow-lg`
+                : colors.unselected
+            } border`}
           >
-            <span className="text-xs sm:text-sm font-medium">
-              {displayLabels?.[option] || option}
-            </span>
+            {displayLabels?.[option] || option}
           </button>
         ))}
       </div>
@@ -136,65 +133,70 @@ export const SelectNextSongForm = (props: SelectNextSongDialogProps) => {
         e.stopPropagation()
         form.handleSubmit()
       }}
-      className={`flex flex-col items-center gap-6 w-full max-w-3xl mx-auto px-4`}
+      className="flex flex-col gap-6 w-full max-w-lg mx-auto px-4"
     >
-      <div className="text-center w-full">
-        <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">
-          Select Song Options
-        </h2>
-        <p className="text-sm sm:text-base text-slate-300">
-          Choose difficulty, genre, and song recognition for the next song.
-        </p>
-      </div>
-      <div className="space-y-5 sm:space-y-6 w-full">
+      <div className="space-y-6">
+        {/* Difficulty Section */}
         <form.Field name="difficulty">
           {(field) => {
+            const isRandom = field.state.value === null
             const currentValue = difficultyToValue(field.state.value)
-            const currentDifficulty = field.state.value || 'RANDOM'
-            const isRandom = currentValue === 0
             return (
-              <div className="space-y-3 w-full">
-                <h3 className="text-sm font-semibold text-slate-200 text-center">
+              <div className="space-y-3">
+                <h3 className="text-xs font-medium text-slate-400 uppercase tracking-wider">
                   Difficulty
                 </h3>
-                <div className="flex flex-col items-center gap-3">
-                  <span
-                    className={`px-4 py-1.5 rounded-md text-sm font-semibold text-white ${
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => field.handleChange(null)}
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all shrink-0 ${
                       isRandom
-                        ? 'bg-linear-to-br from-amber-500 to-orange-600'
-                        : 'bg-linear-to-br from-sky-700 to-sky-900'
+                        ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/25'
+                        : 'border border-slate-700 text-slate-400 hover:border-amber-500 hover:text-amber-400'
                     }`}
                   >
-                    {difficultyLabels[currentDifficulty]}
-                  </span>
-                  <div className="w-full max-w-xs px-2">
-                    <Slider
-                      value={[currentValue]}
-                      onValueChange={([value]) =>
-                        field.handleChange(valueToDifficulty(value))
-                      }
-                      min={0}
-                      max={5}
-                      step={1}
-                    />
+                    RANDOM
+                  </button>
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <div className={`flex-1 ${isRandom ? 'opacity-40' : ''}`}>
+                      <Slider
+                        value={[currentValue]}
+                        onValueChange={([value]) =>
+                          field.handleChange(valueToDifficulty(value))
+                        }
+                        min={1}
+                        max={5}
+                        step={1}
+                      />
+                    </div>
+                    {!isRandom && (
+                      <span className="text-sm font-medium text-sky-400 min-w-[80px] text-right">
+                        {difficultyLabels[field.state.value || 'MEDIUM']}
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
             )
           }}
         </form.Field>
+
+        {/* Country Section */}
         <form.Field name="country">
           {(field) => (
             <OptionGrid
               options={countries}
               selected={field.state.value}
               onSelect={(value) => field.handleChange(value)}
-              label="Song Recognition"
+              label="Recognition"
               displayLabels={countryLabels}
               colorScheme="country"
             />
           )}
         </form.Field>
+
+        {/* Genre Section */}
         <form.Field name="genre">
           {(field) => (
             <OptionGrid
@@ -207,7 +209,8 @@ export const SelectNextSongForm = (props: SelectNextSongDialogProps) => {
           )}
         </form.Field>
       </div>
-      <Button type="submit" className="w-full max-w-md mt-4">
+
+      <Button type="submit" className="w-full mt-2">
         Load Next Song
       </Button>
     </form>
