@@ -4,8 +4,8 @@ import { Slider } from '../ui/slider'
 import { useGameVariant } from '@/hooks/useGameVariant'
 
 const difficulties = ['VERYEASY', 'EASY', 'MEDIUM', 'HARD', 'VERYHARD'] as const
-const genres = ['ROCK', 'RAP', 'POP', 'OTHER'] as const
-const countries = ['LOCAL', 'INTERNATIONAL'] as const
+const genres = ['POP', 'ROCK', 'RAP', 'OTHER'] as const
+const countries = ['INTERNATIONAL', 'LOCAL'] as const
 
 const countryLabels: Record<string, string> = {
   LOCAL: 'LOCAL',
